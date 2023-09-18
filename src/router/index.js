@@ -29,6 +29,11 @@ const routes = [
     path: '/cesium',
     name: 'cesium',
     component: () => import('@/views/CesiumView.vue')
+  },
+  {
+    path: '/echart',
+    name: 'echart',
+    component: () => import('@/views/EchartView.vue')
   }
 ]
 
