@@ -13,7 +13,29 @@ const routes = [
   {
     path: '/about',
     name: 'about',
-    component: () => import('@/views/AboutView.vue')
+    component: () => import('@/views/AboutView.vue'),
+    children: [
+      {
+        path: '/about/three3d',
+        name: 'three3d',
+        component: () => import('@/views/ThreeView.vue')
+      },
+      {
+        path: '/about/cesium',
+        name: 'cesium',
+        component: () => import('@/views/CesiumView.vue')
+      },
+      {
+        path: '/about/echart',
+        name: 'echart',
+        component: () => import('@/views/EchartView.vue')
+      },
+      {
+        path: '/about/amap',
+        name: 'amap',
+        component: () => import('@/views/GaodeView.vue')
+      }
+    ]
   },
   {
     path: '/talk',
@@ -24,16 +46,6 @@ const routes = [
     path: '/learn',
     name: 'learn',
     component: () => import('@/views/LearnView.vue')
-  },
-  {
-    path: '/cesium',
-    name: 'cesium',
-    component: () => import('@/views/CesiumView.vue')
-  },
-  {
-    path: '/echart',
-    name: 'echart',
-    component: () => import('@/views/EchartView.vue')
   }
 ]
 

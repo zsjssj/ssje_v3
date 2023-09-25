@@ -48,7 +48,7 @@ const dracoLoader = new DRACOLoader()
 dracoLoader.setDecoderPath('@/assets/draco/')
 loader.setDRACOLoader(dracoLoader)
 loader.load(
-  '/mode_car/mode1.glb',
+  '/mode/mode1.glb',
   function (gltf) {
     scene.add(gltf.scene)
     gltf.scene.position.set(0, 0, 0)

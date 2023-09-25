@@ -7,7 +7,6 @@ import * as echarts from 'echarts'
 import { onMounted } from 'vue'
 import China from '@/assets/map/china.json'
 
-let ROOT_PATH = 'https://echarts.apache.org/examples'
 let myChart = null
 let option
 option = {
