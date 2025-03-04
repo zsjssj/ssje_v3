@@ -1,10 +1,10 @@
 <template>
-  <div>init</div>
+  <div class="layout"></div>
 </template>
-  
-<script lang='ts'>
+
+<script lang="ts">
 import { defineComponent } from 'vue'
-  
+
 export default defineComponent({
   setup() {
     // todo
@@ -12,6 +12,12 @@ export default defineComponent({
   }
 })
 </script>
-  
-<style lang='stylus' scoped></style>
-  
+
+<style scoped>
+.layout {
+  padding-top: 10vh;
+  box-sizing: border-box;
+  height: 100vh;
+  width: 100vw;
+}
+</style>

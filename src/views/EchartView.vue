@@ -1,5 +1,7 @@
 <template>
-  <div id="chinaMap"></div>
+  <div id="chinaMapLayout">
+    <div id="chinaMap"></div>
+  </div>
 </template>
 
 <script setup>
@@ -104,7 +106,7 @@ onMounted(() => {
   myChart.showLoading()
   myChart.hideLoading()
   echarts.registerMap('China', China)
-  myChart.on('click', (item) => {
+  myChart.on('click', item => {
     // console.log(item.name)
     return
   })
@@ -113,8 +115,16 @@ onMounted(() => {
 </script>
 
 <style scoped>
-#chinaMap {
+#chinaMapLayout {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
   width: 100vw;
   height: 100vh;
+}
+#chinaMap {
+  width: 70vw;
+  height: 70vh;
 }
 </style>

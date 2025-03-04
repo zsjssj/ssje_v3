@@ -1,24 +1,6 @@
-<script setup>
+<script lang="" setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { canvasDraw } from '@/utils/canvasDraw.js'
-
-function test() {
-  //顶点着色器代码
-  const vertexShaderSource = `
-  attribute vec4 a_Position;
-  void main() {
-    gl_Position = vec(0.0,0.0,0.0,1.0);
-    gl_PointSize = 20.0;
-  }
-`
-  //片元着色器代码
-  const fragmentShaderSource = `
-  void main() {
-    gl_FragColor = vec4(1.0,0.0,0.0,1.0);
-  }
-`
-  var program = ctx.initShader(vertexShaderSource, fragmentShaderSource)
-}
 
 //保存canvas画布
 function onClickSave(event) {
@@ -41,19 +23,69 @@ function createSquare(gl) {
   return square
 }
 
+//返回着物体矩阵的函数
+function getMatrix() {
+  //定义正方形的变换矩阵-先对于相机沿z轴后移3.333单位
+  const modelViewMatrix = new Float32Array([1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, -3.333, 1.0])
+  //变换矩阵（45°视野）
+  const projectionMatrix = new Float32Array([2.4142136573791504, 0, 0, 0, 0, 2.4142136573791504, 0, 0, 0, 0, -1.0020020008087158, -1, 0, 0, -0.20020020008087158, 0])
+  return { modelViewMatrix, projectionMatrix }
+}
+
+//返回着色器配置的函数
+function getShader() {
+  //顶点着色器代码
+  const vertexShaderSource = `
+  attribute vec3 vertexPos;
+  attribute vec4 a_Position;
+  uniform mat4 modelViewMatrix;
+  uniform mat4 projectionMatrix;
+  void main() {
+    gl_Position = modelViewMatrix * modelViewMatrix * vec4(vertexPos,1.0);
+  }
+`
+  //片元着色器代码
+  const fragmentShaderSource = `
+  void main() {
+    gl_FragColor = vec4(1.0,1.0,1.0,1.0);
+  }
+`
+  return { vertexShaderSource, fragmentShaderSource }
+}
+
+//绘制
+function draw(gl) {
+  const obj = createSquare(gl)
+  const { vertexShaderSource, fragmentShaderSource } = getShader()
+  const { modelViewMatrix, projectionMatrix } = getMatrix()
+
+  //用黑色清除背景
+  gl.clearColor(0.0, 0.0, 0.0, 1.0)
+  gl.clear(gl.COLOR_BUFFER_BIT)
+  //设置顶点数组
+  gl.bindBuffer(gl.ARRAY_BUFFER, obj.buffer)
+  //设置着色器
+  var shaderProgram = gl.createProgram()
+
+  // Attach pre-existing shaders
+  gl.attachShader(shaderProgram, vertexShaderSource)
+  gl.attachShader(shaderProgram, fragmentShaderSource)
+
+  gl.linkProgram(shaderProgram)
+  gl.useProgram(shaderProgram)
+  gl.useProgram(shaderProgram)
+  //设置着色器参数：点坐标、投影矩阵和模型视图矩阵
+  gl.vertexAttribPointer(shaderVertexPositionAttribute, obj.vertSize, gl.FLOAT, false, 0, 0)
+  gl.uniformMatrix4fv(shaderProjectionMatrixUniform, false, getMatrix().projectionMatrix)
+  gl.uniformMatrix4fv(shaderModelViewMatrixUniform, false, getMatrix().modelViewMatrix)
+  gl.drawArrays(obj.primtype, 0, obj.nVerts)
+}
+
 let ctx
 onMounted(() => {
   const canvas = document.getElementById('canvasTest')
-  // let ctx2d = canvas.getContext('2d')
-  // ctx2d.fillStyle = 'red'
-  // console.log('ctx2d', ctx2d)
-  let gl = canvas.getContext('webgl2') || canvas.getContext('webgl')
-  console.log('gl', gl)
-  // ctx = new canvasDraw(canvas)
-  // ctx.onHandleDraw()
-
-  const square = createSquare(gl)
-  console.log('square', square)
+  ctx = new canvasDraw(canvas)
+  ctx.onHandleDraw()
 })
 
 onBeforeUnmount(() => {
@@ -85,6 +117,8 @@ onBeforeUnmount(() => {
 
 #canvasTest {
   /* border: 1px solid #000; */
+  width: 500px;
+  height: 500px;
   background-color: rgb(200, 200, 200);
 }
 </style>

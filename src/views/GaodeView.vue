@@ -1,12 +1,12 @@
 <template>
   <div id="container">init</div>
-  <el-input
+  <!-- <el-input
     v-model.trim="searchdata"
     class="m-2 searchinput"
     placeholder="请输入地名"
     :prefix-icon="Search"
     @change="serchArea"
-  />
+  /> -->
 </template>
 
 <script setup>
@@ -26,7 +26,7 @@ onMounted(() => {
     version: '2.0', // 指定要加载的 JSAPI 的版本，缺省时默认为 1.4.15
     plugins: [] // 需要使用的的插件列表，如比例尺'AMap.Scale'等
   })
-    .then((AMap) => {
+    .then(AMap => {
       map = new AMap.Map('container', {
         // 设置地图容器id
         viewMode: '2D', // 是否为3D地图模式
@@ -38,7 +38,7 @@ onMounted(() => {
       })
       //103.986382,30.751319
     })
-    .catch((e) => {
+    .catch(e => {
       console.log(e)
     })
 })

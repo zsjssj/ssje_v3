@@ -32,14 +32,12 @@ function createTag(object) {
   scene.add(object3d)
 }
 
-window.addEventListener('mousedown', (event) => {
+window.addEventListener('mousedown', event => {
   pointer.x = (event.clientX / window.innerWidth) * 2 - 1
   pointer.y = -(event.clientY / window.innerHeight) * 2 + 1
   raycaster.setFromCamera(pointer, camera)
   const intersects = raycaster.intersectObjects(scene.children)
-  intersects[0] &&
-    intersects[0].object.name !== '平面' &&
-    console.log(intersects[0].object.name)
+  intersects[0] && intersects[0].object.name !== '平面' && console.log(intersects[0].object.name)
 })
 window.requestAnimationFrame(render)
 
@@ -48,21 +46,20 @@ const dracoLoader = new DRACOLoader()
 dracoLoader.setDecoderPath('@/assets/draco/')
 loader.setDRACOLoader(dracoLoader)
 loader.load(
-  'http://localhost:3000/1225-2.glb',
+  '/mode/mode1.glb',
   function (gltf) {
     scene.add(gltf.scene)
     gltf.scene.position.set(0, 0, 0)
     const obj = gltf.scene.children
-    obj.forEach((item) => {
+    obj.forEach(item => {
       // console.log(item.name)
       if (item.children) {
-        item.children.forEach((item2) => {
+        item.children.forEach(item2 => {
           item2.castShadow = true
           item2.receiveShadow = true
           item2.material = new THREE.MeshStandardMaterial({
             color: new THREE.Color(Math.random(), Math.random(), Math.random())
           })
-          
         })
       }
       item.castShadow = true

@@ -40,6 +40,7 @@ function torouter(url) {
   height: 50px;
   position: absolute;
   top: 15vh;
+  z-index: 1000;
   background-color: rgba(0, 0, 0, 0.2);
   display: flex;
   justify-content: center;
