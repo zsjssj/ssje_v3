@@ -37,10 +37,7 @@
 <script setup>
 import homePart from '@/components/part.vue'
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue'
-const gonggao = [
-  '公告',
-  '本博客所发布的各种软件文章仅限用于学习和研究目的；任何人不得将上述内容用于商业或者非法用途，否则，一切后果请用户自负。本站信息来自网络，版权争议与本站无关。您必须在下载后的24个小时之内，从您的电脑中彻底删除上述内容。如果您喜欢该程序，请支持正版软件，购买注册，得到更好的正版服务。如有侵权请邮件与我联系处理。'
-]
+const gonggao = ['公告', '本博客所发布的各种软件文章仅限用于学习和研究目的；任何人不得将本站内容用于商业或者非法用途，否则，一切后果请用户自负。如有侵权请邮件与我联系处理。']
 const myself = ['自我', '万物包含太多的内容，总有能让自己感到有趣的。将自身作为资本，面对知识与技能时，贪婪的去吸食，壮大自己。']
 let timer = null
 let date = ref(new Date())
