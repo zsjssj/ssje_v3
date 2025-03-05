@@ -45,19 +45,22 @@ const routes = [
       }
     ]
   },
-  {
-    path: '/talk',
-    name: 'talk',
-    component: () => import('@/views/TalkView.vue')
-  },
+  // {
+  //   path: '/talk',
+  //   name: 'talk',
+  //   meta: { title: '' },
+  //   component: () => import('@/views/TalkView.vue')
+  // },
   {
     path: '/learn',
     name: 'learn',
+    meta: { title: '知识点' },
     component: () => import('@/views/LearnView.vue')
   },
   {
     path: '/canvas',
     name: 'canvas',
+    meta: { title: '技术尝试与测试' },
     component: () => import('@/views/canvasView.vue')
   }
 ]

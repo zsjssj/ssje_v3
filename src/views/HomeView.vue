@@ -12,14 +12,14 @@
             <span>访问Github</span>
             <a href="https://github.com/zsjssj" target="_blank">Github</a>
           </li>
-          <li>
-            <span>QQ:2114714800@qq.com</span>
+          <!-- <li>
+            <span>QQ:2114714800</span>
             <a href="#">QQ</a>
           </li>
           <li>
             <img src="@/assets/addWeChat.jpg" alt="" srcset="" />
             <a href="#">Wechat</a>
-          </li>
+          </li> -->
         </ul>
       </div>
     </header>
@@ -61,9 +61,7 @@ onMounted(() => {
   }, 1000)
 })
 onBeforeUnmount(() => {
-  if (timer) {
-    clearInterval(timer) // 在Vue实例销毁前，清除我们的定时器
-  }
+  if (timer) clearInterval(timer)
 })
 </script>
 
@@ -80,7 +78,7 @@ html {
 }
 .home {
   header {
-    background-image: url(@/assets/home-header.jpg);
+    background-image: url(@/assets/home-header.png);
     background-size: cover;
     height: 100vh;
     .header-main {

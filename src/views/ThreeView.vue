@@ -71,10 +71,9 @@ onBeforeUnmount(() => {
 
 <style lang="less">
 .about {
-  background-image: url(@/assets/about-bgi.jpg);
+  background-image: url(@/assets/about-bgi.png);
   background-size: cover;
   height: 100vh;
-  // padding-top: 20vh;
 }
 .about1 {
   font-size: 10px;

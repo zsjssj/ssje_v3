@@ -86,32 +86,44 @@
 
 <script setup>
 import * as Cesium from 'cesium'
-import { ref, onMounted, onUnmounted, watch, reactive, nextTick, getCurrentInstance } from 'vue'
+import { ref, onMounted, onUnmounted, watch, useTemplateRef, reactive, nextTick, getCurrentInstance } from 'vue'
 import heartMap from '@/views/Home/components/heartMap.vue'
 import { getTowerLastData } from '@/api/home.js'
-import { parabola, generateEllipsePoints } from '@/utl/Bezierurve.js'
+import { parabola, generateEllipsePoints } from '@/utils/Bezierurve.js'
 import { ElMessage } from 'element-plus'
 import '@/Widgets/widgets.css'
-import moment from 'moment'
+import dayjs from 'dayjs'
 import useStore from '@/pinia/index.js'
 const { homeStore, nodeStore } = useStore()
 const { proxy } = getCurrentInstance()
 
 //设置cesium静态资源路径
 window.CESIUM_BASE_URL = '/'
-let props = defineProps(['modelValue', 'powerTowerData', 'powerLineData', 'ifListenerclick', 'pitchnumber', 'choosetower'])
-let containerdom = ref(null)
+const props = defineProps(['chooseLineId', 'powerTowerData', 'ifListenerclick', 'pitchnumber', 'choosetower'])
+const cesLoading = defineModel('cesLoading')
+const containerdom = useTemplateRef('containerdom')
+const commonTile = 'https://tiles-1307225140.cos.ap-shanghai.myqcloud.com/2dtiles/{z}/{x}/{y}.png'
+const dtilesregion = encodeURIComponent('四川省/凉山彝族自治州/会东县')
+const tilesurl = `https://tiles-1307225140.cos.ap-shanghai.myqcloud.com/${dtilesregion}/tiles/{z}/{x}/{y}.png`
+const terrainurl = `https://tiles-1307225140.cos.ap-shanghai.myqcloud.com/${dtilesregion}/dem`
 let viewer = null
-let testtile = 'https://tiles-1307225140.cos.ap-shanghai.myqcloud.com/2dtiles/{z}/{x}/{y}.png'
-let dtilesregion = encodeURIComponent('四川省/凉山彝族自治州/会东县')
-let tilesurl = `https://tiles-1307225140.cos.ap-shanghai.myqcloud.com/${dtilesregion}/tiles/{z}/{x}/{y}.png`
-let terrainurl = `https://tiles-1307225140.cos.ap-shanghai.myqcloud.com/${dtilesregion}/dem`
+
+Cesium.RequestScheduler.maximumRequests = 10
+Cesium.RequestScheduler.maximumRequestsPerServer = 10
+
+const urlTemplateImagery = new Cesium.UrlTemplateImageryProvider({
+  url: `/mapapi/${dtilesregion}/tiles/{z}/{x}/{y}.png`,
+  fileExtension: 'png',
+  minimumLevel: 0,
+  maximumLevel: 17
+})
+urlTemplateImagery.errorEvent.addEventListener(error => {})
 
 //初始化场景
 let initcesium = () => {
   viewer = new Cesium.Viewer('cesiumcontainer', {
     contextOptions: { webgl: { alpha: true } },
-    // skyAtmosphere: false,
+    // skyAtmosphere: new Cesium.SkyAtmosphere(),
     targetFrameRate: 60, // 控制渲染帧数
     infoBox: false, //是否显示信息框
     geocoder: false, //是否显示搜索框按钮
@@ -129,8 +141,7 @@ let initcesium = () => {
   })
   viewer.cesiumWidget.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK)
   if (Cesium.FeatureDetection.supportsImageRenderingPixelated()) {
-    //判断是否支持图像渲染像素化处理
-    viewer.resolutionScale = window.devicePixelRatio
+    viewer.resolutionScale = window.devicePixelRatio //判断是否支持图像渲染像素化处理
   }
   viewer.scene.skyBox = new Cesium.SkyBox({
     sources: {
@@ -153,17 +164,9 @@ let initcesium = () => {
   // viewer.scene.backgroundColor = new Cesium.Color(0.0, 0.0, 0.0, 0.0)
   viewer.imageryLayers.removeAll(true)
   viewer._cesiumWidget.creditContainer.style.display = 'none'
-  //禁用cesium鼠右键拖拽缩放功能
-  viewer.scene.screenSpaceCameraController.zoomEventTypes = [3, 4]
+  viewer.scene.screenSpaceCameraController.zoomEventTypes = [3, 4] //禁用cesium鼠右键拖拽缩放功能
   // viewer.scene.screenSpaceCameraController.enableRotate = false
-  viewer.imageryLayers.addImageryProvider(
-    new Cesium.UrlTemplateImageryProvider({
-      url: tilesurl,
-      fileExtension: 'png',
-      minimumLevel: 0,
-      maximumLevel: 17
-    })
-  )
+  viewer.imageryLayers.addImageryProvider(urlTemplateImagery)
 }
 
 //初始化相机
@@ -171,9 +174,7 @@ let pitch1 = props.pitchnumber ? Cesium.Math.toRadians(props.pitchnumber) : Cesi
 let initcamera = function (lng = homeStore.coordinate[0] || 102.6723081, lat = homeStore.coordinate[1] - 0.03 || 26.54102626, height = 10000, pitch = pitch1) {
   viewer?.camera.setView({
     destination: Cesium.Cartesian3.fromDegrees(lng, lat, height),
-    orientation: {
-      pitch
-    }
+    orientation: { pitch }
   })
   viewer.camera.defaultMoveAmount = 100000
   // viewer.camera.frustum.far = 60000 //相机最远可视距离
@@ -272,7 +273,7 @@ const handleHtmlPosition = (divdom, position, dem) => {
   const [ellipsoid, point] = [Cesium.Ellipsoid.WGS84, Cesium.Cartesian3.fromDegrees(...position)]
   return viewer?.scene.postRender.addEventListener(() => {
     // let windowCoord = Cesium.SceneTransforms.wgs84ToWindowCoordinates(viewer.scene, Cesium.Cartesian3.fromDegrees(...position, dem))
-    let windowCoord = Cesium.SceneTransforms.worldToWindowCoordinates(viewer.scene, Cesium.Cartesian3.fromDegrees(...position, dem))
+    const windowCoord = Cesium.SceneTransforms.worldToWindowCoordinates(viewer.scene, Cesium.Cartesian3.fromDegrees(...position, dem))
     const occluder = new Cesium.EllipsoidalOccluder(ellipsoid, viewer.camera.position)
     const visible = occluder.isPointVisible(point)
     if (windowCoord && visible) {
@@ -469,6 +470,9 @@ const addLineTower = async lineData => {
       let height = Terrain[index].height ? Terrain[index].height : 0
       if (!towerDem[item.pointId]) towerDem[item.pointId] = height
       addPowerTower(item, height)
+      if (props.chooseLineId && props.chooseLineId == '7ef433922476aefa2c36741236f84bdf') {
+        addDevice_VB(item)
+      }
       index > 0 && addPowerLine(arr[index - 1], item)
     })
   )
@@ -531,6 +535,35 @@ const addmodel = async () => {
   })
 }
 
+//添加节点标签
+function addDevice_VB(data) {
+  const pointName = { 1: 'Ⅱ线上相', 2: 'Ⅰ线上相', 3: 'Ⅱ线中相', 5: 'Ⅱ线下相' }
+  const arr = ['1', '2', '3', '5']
+  const newscaleNum = (data.height * scaleNum) / 10
+  Object.entries(data.wireInfo).forEach(([key, item]) => {
+    if (arr.includes(key)) {
+      const [lng, lat, h] = getxyz({
+        position: data.position.slice(0, 2),
+        angle: data.position.at(-1),
+        xyz: [item.xyzPoint.x * newscaleNum, item.xyzPoint.y * newscaleNum, item.xyzPoint.z * newscaleNum]
+      })
+      viewer.entities.add({
+        name: pointName[key],
+        id: data.name + '_' + pointName[key],
+        position: new Cesium.Cartesian3.fromDegrees(lng, lat, h),
+        label: {
+          text: pointName[key],
+          font: '24px Helvetica',
+          fillColor: Cesium.Color.SKYBLUE,
+          outlineColor: Cesium.Color.BLACK,
+          outlineWidth: 2,
+          style: Cesium.LabelStyle.FILL_AND_OUTLINE
+        }
+      })
+    }
+  })
+}
+
 //加载3d模型的另一种方式
 const addPowerTower2 = async (tower, dem) => {
   let message = JSON.parse(JSON.stringify(tower))
@@ -576,16 +609,20 @@ const addPowerLine = async (item0, item1) => {
       classifiedData[id].push(item[key])
     }
   })
-  Object.values(classifiedData).forEach(value => {
+  Object.values(classifiedData).forEach(classifiedDataValue => {
+    if (item0.position[0] === item1.position[0] && item0.position[1] === item1.position[1]) {
+      item1.position[0] += 0.0001
+      item1.position[1] += 0.0001
+    }
     let [lng1, lat1, h1] = getxyz({
       position: item0.position.slice(0, 2),
       angle: item0.position.at(-1),
-      xyz: [value[0].xyzPoint.x * scaleNum1, value[0].xyzPoint.y * scaleNum1, value[0].xyzPoint.z * scaleNum1]
+      xyz: [classifiedDataValue[0].xyzPoint.x * scaleNum1, classifiedDataValue[0].xyzPoint.y * scaleNum1, classifiedDataValue[0].xyzPoint.z * scaleNum1]
     })
     let [lng2, lat2, h2] = getxyz({
       position: item1.position.slice(0, 2),
       angle: item1.position.at(-1),
-      xyz: [value[1].xyzPoint.x * scaleNum2, value[1].xyzPoint.y * scaleNum2, value[1].xyzPoint.z * scaleNum2]
+      xyz: [classifiedDataValue[1].xyzPoint.x * scaleNum2, classifiedDataValue[1].xyzPoint.y * scaleNum2, classifiedDataValue[1].xyzPoint.z * scaleNum2]
     })
     //计算类抛物线线段位置数组
     let arr1 = parabola([lng1, lat1, height + h1 || 0, lng2, lat2, height2 + h2 || 0])
@@ -612,12 +649,9 @@ let goBackCenter = (lng = 102.6723081, lnt = 26.51102626) => {
   }
   removegoback && removegoback()
   removegoback = viewer.scene.postRender.addEventListener(function () {
-    //获取摄像机位置
     let position = viewer.scene.camera.positionCartographic
-    // 弧度转经纬度
     let longitude = Cesium.Math.toDegrees(position.longitude)
     let latitude = Cesium.Math.toDegrees(position.latitude)
-    // let height = position.height
     if (longitude < Range.west || latitude > Range.north || longitude > Range.east || latitude < Range.south) {
       initcamera(lng, lnt, Math.round(viewer.camera.positionCartographic.height) >= 10000 ? Math.round(viewer.camera.positionCartographic.height) : 10000)
     }
@@ -685,7 +719,7 @@ let ifchoosetowerLength = () => {
   }
 }
 
-const emit = defineEmits(['sendTowerId', 'update:modelValue'])
+const emit = defineEmits(['sendTowerId'])
 //鼠标点击模型处理
 let handlertowerclick = async clickEvent => {
   let pick = viewer.scene.pickPosition(clickEvent.position)
@@ -718,13 +752,26 @@ const connectWebsocket = (systemIds = []) => {
       }
       websocket.onmessage = evt => {
         const data = JSON.parse(evt.data)
-        if (data.code == 101 && data.DataType !== 213) {
+        if (data.code == 101 && data.DataType && data.DataType !== 213) {
           let newObj = {}
           Object.keys(data.Data[0]).forEach(type => {
             newObj[type.toLowerCase()] = data.Data[0][type]
           })
           let objIndex = latestDataMaker.value.findIndex(item => item.id == homeStore.systemId_TowerTd[data.SystemId])
-          if ((objIndex !== -1 && latestDataMaker.value, latestDataMaker.value[objIndex].data.length > 0)) {
+
+          if (objIndex !== -1 && latestDataMaker.value[objIndex].data.length > 0) {
+            latestDataMaker.value[objIndex].data.forEach(item => {
+              if (newObj[item.key]) item.value = newObj[item.key]
+            })
+          }
+        } else if (data.code == 101 && data.content && data.content.DataType && data.content.DataType !== 213) {
+          let newObj = {}
+          Object.keys(data.content.Data).forEach(type => {
+            newObj[type.toLowerCase()] = data.content.Data[type]
+          })
+          let objIndex = latestDataMaker.value.findIndex(item => item.id == homeStore.systemId_TowerTd[data['content']['SystemId']])
+          console.log(objIndex, latestDataMaker.value[objIndex])
+          if (objIndex !== -1 && latestDataMaker.value[objIndex].data.length > 0) {
             latestDataMaker.value[objIndex].data.forEach(item => {
               if (newObj[item.key]) item.value = newObj[item.key]
             })
@@ -790,10 +837,11 @@ const handleLatestImageData = (data, type, tower, state) => {
   try {
     let imgList = data.Data
     let obj = { left: { name: null, data: null }, left1: null, right: { name: null, data: null }, right1: null }
+    imgList.sort((a, b) => (dayjs(a.time).isBefore(dayjs(b.time)) ? -1 : 1))
     if (type == 225) {
       for (let index = 0; index < imgList.length; index++) {
         const element = imgList[index]
-        let time = moment(element.time).format('YYYY-MM-DD HH:mm:ss')
+        let time = dayjs(element.time).format('YYYY-MM-DD HH:mm:ss')
         let { channel, pictureUrl, videoAnalysisDo } = element
         if (channel == 1) {
           obj.left = { name: '大号测' + time, url: pictureUrl, videoAnalysisDo }
@@ -807,7 +855,7 @@ const handleLatestImageData = (data, type, tower, state) => {
       for (let index = 0; index < arr.length; index++) {
         const element = arr[index][0]
         let { position } = element
-        let time = moment(element.time).format('YYYY-MM-DD HH:mm:ss')
+        let time = dayjs(element.time).format('YYYY-MM-DD HH:mm:ss')
         if (element && (index == 0 || index == 2)) {
           if (index == 0) {
             obj.left1 = { name: position + ' ' + time, data: element.tempMatrixVo }
@@ -868,8 +916,12 @@ let handleLastData = async (goalData, type = 1) => {
             let latestDataLabelArr = []
             data.forEach((res, index, arr) => {
               res.data['213'] && delete res.data['213']
-              if (res.data['225']) handleLatestImageData(res.data['225'], 225, goalData, type), delete res.data['225']
-              if (res.data['226']) handleLatestImageData(res.data['226'], 226, goalData, type), delete res.data['226']
+              if (res.data['225']) {
+                handleLatestImageData(res.data['225'], 225, goalData, type), delete res.data['225']
+              }
+              if (res.data['226']) {
+                handleLatestImageData(res.data['226'], 226, goalData, type), delete res.data['226']
+              }
               Object.entries(res.data).forEach(([type, value], index2, arr2) => {
                 let newSensorAlarm = nodeStore.lowThresholdsTypeField[type]
                 if (arr.length == index + 1 && arr2.length == index2 + 1) {
@@ -909,8 +961,8 @@ const clearDom = (className = '') => {
   })
 }
 
-let [choosetower, latestLabel, filterCeslinedata, time2, time3] = [[], [], [], null, null]
-let watchfunction1, watchfunction2, watchfunction3, towerHandler, CameraInspectsNewDataTimeId
+let [choosetower, filterCeslinedata, time3] = [[], [], null]
+let watchfunction1, towerHandler, CameraInspectsNewDataTimeId
 onMounted(async () => {
   initcesium(), await showterrain(terrainurl), initcamera()
   //监听线路
@@ -919,35 +971,32 @@ onMounted(async () => {
     (newvalue, oldvalue) => {
       viewer.entities.values.length > 0 && viewer.entities.removeAll()
       choosetower = []
-      if (!newvalue || newvalue.length == 0) {
-        return
-      }
+      if (!newvalue || newvalue.length == 0) return
       clearDom('cesiumlabal'), clearDom('cesiumLatestLabal')
-      if (newvalue[0].lineName.includes('山东')) {
+      const layers1 = viewer.imageryLayers.get(1)
+      if (newvalue[0].lineName.includes('山东') || newvalue[0].lineName.includes('台泉')) {
         viewer.imageryLayers.get(0).show = false
-        if (viewer.imageryLayers.get(1)) {
-          viewer.imageryLayers.get(1).show = true
+        if (layers1) {
+          layers1.show = true
         } else {
-          viewer.imageryLayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({ url: testtile, fileExtension: 'png', minimumLevel: 0, maximumLevel: 17 }))
+          viewer.imageryLayers.addImageryProvider(new Cesium.UrlTemplateImageryProvider({ url: commonTile, fileExtension: 'png', minimumLevel: 0, maximumLevel: 17 }))
           viewer.imageryLayers.get(1).show = true
         }
         initcamera(newvalue[0].position[0], newvalue[0].position[1])
       } else {
         viewer.imageryLayers.get(0).show = true
-        if (viewer.imageryLayers.get(1)) {
-          viewer.imageryLayers.get(1).show = false
-        }
+        if (layers1) layers1.show = false
       }
 
       filterCeslinedata = newvalue.filter(item => item.systemList.length > 0)
       addLineTower(newvalue).then(() => {
-        emit('update:modelValue', false)
+        cesLoading.value = false
       })
     },
     { immediate: true }
   )
   //监听点击的塔
-  watchfunction2 = watch(
+  watch(
     () => props.choosetower,
     async (newvalue, oldvalue) => {
       if (newvalue && props.choosetower.type == 'tower') {
@@ -1005,8 +1054,10 @@ onMounted(async () => {
 
 onUnmounted(() => {
   window.removeEventListener('resize', cesviewerchange)
-  watchfunction1 && watchfunction1(), watchfunction2 && watchfunction2()
+  watchfunction1 && watchfunction1()
+  //  watchfunction2 && watchfunction2()
   CameraInspectsNewDataTimeId && clearInterval(CameraInspectsNewDataTimeId)
+  CameraInspectsNewData = {}
   removeaddmaker && removeaddmaker()
   removeLatestmaker && removeLatestmaker()
   viewer.entities.values.length > 0 && viewer.entities.removeAll()

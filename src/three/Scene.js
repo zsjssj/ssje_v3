@@ -43,7 +43,7 @@ window.requestAnimationFrame(render)
 
 const loader = new GLTFLoader()
 const dracoLoader = new DRACOLoader()
-dracoLoader.setDecoderPath('@/assets/draco/')
+dracoLoader.setDecoderPath('@/assets/draco/gltf1/')
 loader.setDRACOLoader(dracoLoader)
 loader.load(
   '/mode/mode1.glb',

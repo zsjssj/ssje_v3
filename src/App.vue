@@ -3,7 +3,7 @@
     <nav v-show="nav_show">
       <div class="left">
         <img src="./assets/user.png" alt="头像" style="height: 3rem; width: 3rem; border-radius: 0.6rem" />
-        <span>十三君诶|个人博客</span>
+        <span>十三君诶|个人建站</span>
       </div>
       <div class="right">
         <ul>
@@ -13,11 +13,11 @@
           <li>
             <router-link to="/about"> <i></i>兴趣技能</router-link>
           </li>
+          <!-- <li>
+            <router-link to="/talk"> <i></i>日常记录</router-link>
+          </li> -->
           <li>
-            <router-link to="/talk"> <i></i>留言板</router-link>
-          </li>
-          <li>
-            <router-link to="/learn"> <i></i>学习资源</router-link>
+            <router-link to="/learn"> <i></i>学习记录</router-link>
           </li>
           <li>
             <router-link to="/canvas"> <i></i>canvas测试</router-link>
