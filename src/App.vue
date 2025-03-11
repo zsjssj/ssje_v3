@@ -1,3 +1,21 @@
+<script lang="ts" setup>
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+const nav_show = ref(true)
+
+function handleScroll() {
+  const scrollHeight = document.documentElement.scrollTop || document.body.scrollTop // 滚动高度
+  nav_show.value = scrollHeight <= 200
+}
+onMounted(() => {
+  nextTick(() => {
+    window.addEventListener('scroll', handleScroll) // 监听（绑定）滚轮滚动事件
+  })
+})
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
+</script>
+
 <template>
   <div id="app">
     <nav v-show="nav_show">
@@ -25,7 +43,6 @@
         </ul>
       </div>
     </nav>
-
     <main ref="main">
       <router-view></router-view>
     </main>
@@ -33,26 +50,7 @@
   <!-- <canvasView /> -->
 </template>
 
-<script setup>
-import canvasView from './views/canvasView.vue'
-import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
-let nav_show = ref(true)
-
-function handleScroll() {
-  const scrollHeight = document.documentElement.scrollTop || document.body.scrollTop // 滚动高度
-  nav_show.value = scrollHeight <= 200
-}
-onMounted(() => {
-  nextTick(() => {
-    window.addEventListener('scroll', handleScroll) // 监听（绑定）滚轮滚动事件
-  })
-})
-onBeforeUnmount(() => {
-  window.removeEventListener('scroll', handleScroll)
-})
-</script>
-
-<style lang="less" scoped>
+<style lang="scss" scoped>
 @-webkit-keyframes tracking-in-expand {
   0% {
     letter-spacing: -0.5em;
@@ -99,7 +97,11 @@ a {
     left: 50%;
     transform: translateX(-50%);
     width: 64vw;
+    padding: 0 1rem;
     max-height: 10vh;
+    // background-color: rgba(122, 200, 240, 0.2);
+    // backdrop-filter: blur(0.5rem);
+    // border-radius: 10px;
     .left {
       width: 20vw;
       img {
@@ -120,31 +122,29 @@ a {
         animation: tracking-in-expand 2s cubic-bezier(0.215, 0.61, 0.355, 1) both;
       }
     }
-    .right {
-      ul {
-        list-style: none;
-        -webkit-animation: tracking-in-expand 2s cubic-bezier(0.215, 0.61, 0.355, 1) both;
-        animation: tracking-in-expand 2s cubic-bezier(0.215, 0.61, 0.355, 1) both;
-        li {
-          display: inline-flex;
-          line-height: 6vmin;
-          text-align: center;
-          height: 6vmin;
-          border-radius: 14px;
-          &:hover {
-            cursor: pointer;
-            background-color: rgba(0, 0, 0, 0.1);
+    .right ul {
+      list-style: none;
+      -webkit-animation: tracking-in-expand 2s cubic-bezier(0.215, 0.61, 0.355, 1) both;
+      animation: tracking-in-expand 2s cubic-bezier(0.215, 0.61, 0.355, 1) both;
+      li {
+        display: inline-flex;
+        line-height: 6vmin;
+        text-align: center;
+        height: 6vmin;
+        border-radius: 14px;
+        a {
+          display: block;
+          padding: 0 20px;
+          width: 100%;
+          height: 100%;
+          font-size: 2vmin;
+          &.router-link-exact-active {
+            color: #5ab0f7;
           }
-          a {
-            display: block;
-            padding: 0 20px;
-            width: 100%;
-            height: 100%;
-            font-size: 2vmin;
-            &.router-link-exact-active {
-              color: #5ab0f7;
-            }
-          }
+        }
+        &:hover {
+          cursor: pointer;
+          background-color: rgba(0, 0, 0, 0.1);
         }
       }
     }

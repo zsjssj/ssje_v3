@@ -9,7 +9,7 @@
 const props = defineProps(['parttext', 'partart', 'msg'])
 </script>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 h1 {
   margin: 0 0 4vh 0;
 }
