@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { useRoute } from 'vue-router'
 const nav_show = ref(true)
+const route = useRoute()
 
 function handleScroll() {
   const scrollHeight = document.documentElement.scrollTop || document.body.scrollTop // 滚动高度
@@ -18,9 +20,9 @@ onBeforeUnmount(() => {
 
 <template>
   <div id="app">
-    <nav v-show="nav_show">
+    <nav v-show="nav_show" :class="{ 'nav-active': route.name !== 'home' }">
       <div class="left">
-        <img src="./assets/user.png" alt="头像" style="height: 3rem; width: 3rem; border-radius: 0.6rem" />
+        <img src="./assets/user.png" alt="头像" />
         <span>十三君诶|个人建站</span>
       </div>
       <div class="right">
@@ -87,7 +89,7 @@ a {
   text-align: center;
   color: #293139;
   nav {
-    margin-top: 3vh;
+    margin-top: 2vh;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -97,20 +99,25 @@ a {
     left: 50%;
     transform: translateX(-50%);
     width: 64vw;
-    padding: 0 1rem;
+    padding: 1vh 1rem 0 1rem;
     max-height: 10vh;
-    // background-color: rgba(122, 200, 240, 0.2);
-    // backdrop-filter: blur(0.5rem);
-    // border-radius: 10px;
+    border-radius: 1rem;
+    &.nav-active {
+      background-color: rgba(145, 218, 255, 0.1);
+      backdrop-filter: blur(2rem);
+      box-shadow: 0 0 0.25rem 0rem rgba(0, 0, 0, 0.3);
+    }
     .left {
       width: 20vw;
       img {
         vertical-align: middle;
-        width: 6vmin;
-        height: 6vmin;
+        width: clamp(2rem, 5vmin, 3rem);
+        height: clamp(2rem, 5vmin, 3rem);
+        border-radius: 0.6rem;
         transform: translate(-1vw);
       }
       span {
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
         vertical-align: middle;
         height: 100%;
         font-size: 3vmin;
@@ -137,7 +144,7 @@ a {
           padding: 0 20px;
           width: 100%;
           height: 100%;
-          font-size: 2vmin;
+          text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.1);
           &.router-link-exact-active {
             color: #5ab0f7;
           }

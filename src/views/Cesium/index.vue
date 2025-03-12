@@ -39,7 +39,10 @@ onMounted(async () => {
   initcamera()
 })
 onBeforeUnmount(() => {
-  viewer!.destroy()
+  if (!viewer) return
+  const canvas = viewer.canvas.getContext('webgl2') || viewer.canvas.getContext('webgl')
+  canvas?.getExtension('WEBGL_lose_context')?.loseContext()
+  !viewer.isDestroyed() && viewer.destroy()
 })
 </script>
 

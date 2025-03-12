@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
+import setRouterBefore from './routerbefore'
 
 const routes = [
   {
@@ -69,5 +70,6 @@ const router = createRouter({
   history: createWebHashHistory(),
   routes
 })
+setRouterBefore(router)
 
 export default router

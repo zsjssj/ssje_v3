@@ -4,6 +4,6 @@ import App from './App.vue'
 import './assets/styles/index.scss'
 // import './assets/styles/arcgis.css'
 import '@arcgis/core/assets/esri/themes/light/main.css'
-import router from './router'
+import router from '@/router/index'
 
 createApp(App).use(router).mount('#app')
