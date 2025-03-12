@@ -23,11 +23,10 @@ function torouter(url: string) {
       <span @click="changeshow"></span>
     </div>
     <div class="aboutmain">
-      <!-- <div @click="torouter('three3d')">到Three3D界面</div> -->
       <div @click="torouter('arcgis')">到arcgis界面</div>
       <div @click="torouter('cesium')">到Cesium地球界面</div>
       <div @click="torouter('amap')">到高德地图界面</div>
-      <div @click="torouter('echart')">到Echart地图界面</div>
+      <div @click="torouter('three3d')">到Three界面</div>
     </div>
   </div>
   <router-view style="height: 100vh; width: 100vw"></router-view>

@@ -1,100 +1,78 @@
 import * as THREE from 'three'
-import { CSS3DRenderer } from 'three/examples/jsm/renderers/CSS3DRenderer.js'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
-import { CSS3DObject } from 'three/examples/jsm/renderers/CSS3DRenderer.js'
 
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000)
-camera.position.set(5, 5, 5)
-
-const light = new THREE.AmbientLight(0x404040, 1) // soft white light
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1)
-directionalLight.castShadow = true //设置光照投射阴影
-directionalLight.shadow.mapSize.width = 1024
-directionalLight.shadow.mapSize.height = 1024
-directionalLight.shadow.camera.near = 0.1
-directionalLight.shadow.camera.far = 2000
-
-const renderer = new THREE.WebGLRenderer({
-  antialias: true,
-  alpha: true
-})
-renderer.shadowMap.enabled = true //开启阴影渲染
-renderer.shadowMap.autoUpdate = true //开启动态阴影渲染
-renderer.setSize(window.innerWidth, window.innerHeight)
-
-const css3drenderer = new CSS3DRenderer()
-css3drenderer.setSize(window.innerWidth, window.innerHeight)
-
-const scene = new THREE.Scene()
-scene.add(camera)
-scene.add(light)
-scene.add(directionalLight)
-const raycaster = new THREE.Raycaster()
-const pointer = new THREE.Vector2()
-
-function render() {
-  renderer.render(scene, camera)
-}
-let threediv = null
-function createTag(object: any) {
-  threediv = document.createElement('div')
-  threediv.className = 'elementTag'
-  threediv.innerHTML = `
-    <div class="content" >
-      <h3>${object.name}</h3>
-    </div>
-  `
-  const object3d = new CSS3DObject(threediv)
-  object3d.scale.set(0.05, 0.05, 0.05)
-  object3d.position.copy(object.position)
-  scene.add(object3d)
+abstract class myThreeObject {
+  abstract scene: THREE.Scene
+  abstract camera: THREE.PerspectiveCamera
+  abstract renderer: THREE.WebGLRenderer
+  abstract init(): void
+  abstract animate(): void
+  abstract renderKeep(): void
+  abstract stopRender(): void
+  abstract renderOnce(): void
+  abstract renderTime(time: number): void
 }
 
-window.addEventListener('mousedown', event => {
-  pointer.x = (event.clientX / window.innerWidth) * 2 - 1
-  pointer.y = -(event.clientY / window.innerHeight) * 2 + 1
-  raycaster.setFromCamera(pointer, camera)
-  const intersects = raycaster.intersectObjects(scene.children)
-  intersects[0] && intersects[0].object.name !== '平面' && console.log(intersects[0].object.name)
-})
-window.requestAnimationFrame(render)
+class myThreeClass extends myThreeObject {
+  scene: THREE.Scene
+  camera: THREE.PerspectiveCamera
+  renderer: THREE.WebGLRenderer
+  domW: number
+  domH: number
 
-const loader = new GLTFLoader()
-const dracoLoader = new DRACOLoader()
-dracoLoader.setDecoderPath('@/assets/draco/gltf1/')
-loader.setDRACOLoader(dracoLoader)
-loader.load(
-  '/mode/mode1.glb',
-  function (gltf) {
-    scene.add(gltf.scene)
-    gltf.scene.position.set(0, 0, 0)
-    const obj = gltf.scene.children
-    obj.forEach(item => {
-      if (item.children) {
-        item.children.forEach(item2 => {
-          item2.castShadow = true
-          item2.receiveShadow = true
-          item2.material = new THREE.MeshStandardMaterial({
-            color: new THREE.Color(Math.random(), Math.random(), Math.random())
-          })
-        })
-      }
-      item.castShadow = true
-      item.receiveShadow = true
-      item.material = new THREE.MeshStandardMaterial({
-        color: new THREE.Color(Math.random(), Math.random(), Math.random())
-        // side: THREE.DoubleSide
-      })
-      item.name !== '文本' && createTag(item)
-    })
-  },
-  function (_) {
-    // console.log((xhr.loaded / xhr.total) * 100 + '% loaded')
-  },
-  function (_) {
-    // console.log('An error happened')
+  ifdoRender: boolean = false
+  timeId: NodeJS.Timeout | null = null
+
+  constructor(public Dom: HTMLElement) {
+    super()
+    this.domW = Dom.offsetWidth
+    this.domH = Dom.offsetHeight
+    this.scene = new THREE.Scene()
+    this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000)
+    this.renderer = this.initRenderer(this.domW, this.domH)
+    document.body.appendChild(this.renderer.domElement)
+    this.camera.position.z = 5
+    this.animate = this.animate.bind(this)
+    this.init()
   }
-)
+  override init() {
+    if (!document.body.contains(this.renderer.domElement)) {
+      document.body.appendChild(this.renderer.domElement)
+    }
+  }
+  private initRenderer(w: number, h: number) {
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, precision: 'lowp' })
+    renderer.autoClear = true
+    renderer.setSize(w, h)
+    return renderer
+  }
 
-export default { camera, renderer, light, directionalLight, css3drenderer }
+  override animate() {
+    this.renderer.render(this.scene, this.camera)
+    if (this.ifdoRender) requestAnimationFrame(this.animate)
+  }
+  public override renderKeep() {
+    if (!this.ifdoRender) this.ifdoRender = true
+    requestAnimationFrame(this.animate)
+  }
+  public override stopRender() {
+    if (this.ifdoRender) this.ifdoRender = false
+  }
+  //单次渲染
+  public override renderOnce() {
+    if (this.ifdoRender) this.ifdoRender = false
+    requestAnimationFrame(this.animate)
+  }
+  //根据时间渲染
+  public override renderTime(time: number) {
+    this.ifdoRender = true
+    if (this.timeId) {
+      window.clearTimeout(this.timeId), (this.timeId = null)
+    }
+    this.timeId = setTimeout(() => {
+      this.ifdoRender = false
+    }, time * 1000)
+    requestAnimationFrame(this.animate.bind(this))
+  }
+}
+
+export { myThreeClass }

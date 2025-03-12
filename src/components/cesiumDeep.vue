@@ -88,7 +88,7 @@
 import * as Cesium from 'cesium'
 import { ref, onMounted, onUnmounted, watch, useTemplateRef, reactive, nextTick, getCurrentInstance } from 'vue'
 import heartMap from '@/views/Home/components/heartMap.vue'
-import { getTowerLastData } from '@/api/home.js'
+import { getTowerLastData } from '@/api/modules/home.js'
 import { parabola, generateEllipsePoints } from '@/utils/Bezierurve.js'
 import { ElMessage } from 'element-plus'
 import '@/Widgets/widgets.css'
@@ -112,7 +112,7 @@ Cesium.RequestScheduler.maximumRequests = 10
 Cesium.RequestScheduler.maximumRequestsPerServer = 10
 
 const urlTemplateImagery = new Cesium.UrlTemplateImageryProvider({
-  url: `/mapapi/${dtilesregion}/tiles/{z}/{x}/{y}.png`,
+  url: tilesurl,
   fileExtension: 'png',
   minimumLevel: 0,
   maximumLevel: 17
@@ -470,6 +470,7 @@ const addLineTower = async lineData => {
       let height = Terrain[index].height ? Terrain[index].height : 0
       if (!towerDem[item.pointId]) towerDem[item.pointId] = height
       addPowerTower(item, height)
+      // addPowerTower2(item, height)
       if (props.chooseLineId && props.chooseLineId == '7ef433922476aefa2c36741236f84bdf') {
         addDevice_VB(item)
       }
@@ -568,22 +569,17 @@ function addDevice_VB(data) {
 const addPowerTower2 = async (tower, dem) => {
   let message = JSON.parse(JSON.stringify(tower))
   const origin = Cesium.Cartesian3.fromDegrees(...tower.position.slice(0, 2), dem)
-  const modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(origin)
-  const model = viewer.scene.primitives.add(
-    Cesium.Model.fromGltf({
-      url: tower.filePath
-      // color: Cesium.Color.WHITE,
-      // distanceDisplayCondition: new Cesium.DistanceDisplayCondition(1, 20000),
-      // colorBlendMode: Cesium.ColorBlendMode.MIX,
-      // scale: (tower.height / 10) * scaleNum,
-      // modelMatrix: modelMatrix,
-      // silhouetteSize: tower.warning ? 4 : 0,
-      // silhouetteColor: warningheightshowcolor,
-      // shadows: Cesium.ShadowMode.CAST_ONLY,
-      // message
-    })
-  )
-  model.readyPromise.then(function (model) {})
+  // const modelMatrix = Cesium.Transforms.eastNorthUpToFixedFrame(origin)
+  const modelMatrix = Cesium.Transforms.headingPitchRollToFixedFrame(origin, new Cesium.HeadingPitchRoll(Cesium.Math.toRadians(tower.position.at(-1) - 90), 0, 0))
+  const model = await Cesium.Model.fromGltfAsync({
+    url: tower.filePath,
+    scale: (tower.height / 10) * scaleNum,
+    modelMatrix: modelMatrix,
+    id: tower.pointId,
+    color: Cesium.Color.WHITE
+  })
+  viewer.scene.primitives.add(model)
+  await viewer.zoomTo(model)
 }
 
 //相对坐标计算,转为经纬度
@@ -758,7 +754,6 @@ const connectWebsocket = (systemIds = []) => {
             newObj[type.toLowerCase()] = data.Data[0][type]
           })
           let objIndex = latestDataMaker.value.findIndex(item => item.id == homeStore.systemId_TowerTd[data.SystemId])
-
           if (objIndex !== -1 && latestDataMaker.value[objIndex].data.length > 0) {
             latestDataMaker.value[objIndex].data.forEach(item => {
               if (newObj[item.key]) item.value = newObj[item.key]
@@ -1000,7 +995,10 @@ onMounted(async () => {
     () => props.choosetower,
     async (newvalue, oldvalue) => {
       if (newvalue && props.choosetower.type == 'tower') {
-        let pickModel = viewer.entities.getById(newvalue.id)
+        const pickModel1 = viewer.entities.getById(newvalue.id)
+        const pickModel2 = viewer.scene.primitives._primitives.find(primitive => primitive.id === newvalue.id)
+        const pickModel = pickModel1 ? pickModel1 : pickModel2
+        if (!pickModel) return
         ifchoosetowerLength()
         choosetower.push(pickModel)
         pickModel.model.silhouetteSize = 4

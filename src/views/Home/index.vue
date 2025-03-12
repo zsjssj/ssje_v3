@@ -12,11 +12,11 @@
             <span>访问Github</span>
             <a href="https://github.com/zsjssj" target="_blank">Github</a>
           </li>
-          <!-- <li>
-            <span>QQ:2114714800</span>
-            <a href="#">QQ</a>
-          </li>
           <li>
+            <span>2114714800@qq.com</span>
+            <a href="#">email</a>
+          </li>
+          <!-- <li>
             <img src="@/assets/addWeChat.jpg" alt="" srcset="" />
             <a href="#">Wechat</a>
           </li> -->

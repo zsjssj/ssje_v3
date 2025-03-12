@@ -31,12 +31,12 @@ const routes = [
         meta: { title: '地理3D' },
         component: () => import('@v/Cesium/index.vue')
       },
-      {
-        path: '/about/echart',
-        name: 'echart',
-        meta: { title: '图表地图' },
-        component: () => import('@v/Echart/index.vue')
-      },
+      // {
+      //   path: '/about/echart',
+      //   name: 'echart',
+      //   meta: { title: '图表地图' },
+      //   component: () => import('@v/Echart/index.vue')
+      // },
       {
         path: '/about/amap',
         name: 'amap',

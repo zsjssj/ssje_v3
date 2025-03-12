@@ -21,7 +21,7 @@ export default defineConfig({
     }
   },
   build: {
-    assetsDir: 'Assets' // 设置产出目录
+    assetsDir: 'assets' // 设置产出目录
   },
   css: {
     preprocessorOptions: {

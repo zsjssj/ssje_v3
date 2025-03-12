@@ -3,16 +3,16 @@ import { onMounted } from 'vue'
 import Map from '@arcgis/core/Map'
 import MapView from '@arcgis/core/views/MapView'
 
-let view: any
+// let view: any
 function arcGisInit() {
   const map = new Map({
     basemap: 'topo-vector'
   })
-  view = new MapView({
+  new MapView({
     container: 'viewDiv', // reference the div id
     map: map,
     zoom: 4,
-    center: [15, 65]
+    center: [104.0667, 30.6667]
   })
 }
 onMounted(() => {

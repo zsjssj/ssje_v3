@@ -15,7 +15,7 @@ $gap-5: 0.5rem;
   height: 100%;
 }
 
-@mixin flexCenter($justify: center, $align: $justify) {
+@mixin flex($justify: center, $align: $justify) {
   display: flex;
   justify-content: $justify;
   align-items: $align;

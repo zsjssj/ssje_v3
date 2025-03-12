@@ -10,6 +10,8 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+public/assets/components
+public/assets/esri
 *.local
 
 # Editor directories and files

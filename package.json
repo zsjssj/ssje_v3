@@ -4,9 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
+    "dev": "npm run copy && vite",
+    "build": "npm run copy && vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "copy": "ncp ./node_modules/@arcgis/core/assets ./public/assets"
   },
   "dependencies": {
     "@amap/amap-jsapi-loader": "^1.0.1",
