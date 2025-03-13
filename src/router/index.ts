@@ -17,7 +17,7 @@ const routes = [
     path: '/about',
     name: 'about',
     meta: { title: '关于' },
-    redirect: '/about/arcgis',
+    redirect: '/about/three3d',
     component: () => import('@v/About/index.vue'),
     children: [
       {
@@ -32,12 +32,6 @@ const routes = [
         meta: { title: '地理3D' },
         component: () => import('@v/Cesium/index.vue')
       },
-      // {
-      //   path: '/about/echart',
-      //   name: 'echart',
-      //   meta: { title: '图表地图' },
-      //   component: () => import('@v/Echart/index.vue')
-      // },
       {
         path: '/about/amap',
         name: 'amap',
