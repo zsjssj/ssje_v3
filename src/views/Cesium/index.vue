@@ -26,8 +26,8 @@ function initcamera(lng = 104.0667, lat = 30.6667, height = 10000, pitch = Cesiu
 
 onMounted(async () => {
   const worldTerrain = await Cesium.createWorldTerrainAsync({
-    requestVertexNormals: true, //法线
-    requestWaterMask: true //水纹效果
+    // requestVertexNormals: true, //法线
+    // requestWaterMask: true //水纹效果
   })
   viewer = new Cesium.Viewer('cesiumContainer', {
     terrainProvider: worldTerrain,

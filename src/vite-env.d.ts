@@ -4,6 +4,10 @@ declare module '*.vue' {
   const vueComponent: DefineComponent<{}, {}, any>
   export default vueComponent
 }
+declare module '*.glsl' {
+  const value: string
+  export default value
+}
 
 // declare module 'cesium' {
 //   // 添加需要使用的 Cesium 类型
