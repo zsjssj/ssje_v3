@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, useTemplateRef } from 'vue'
+import { onMounted, useTemplateRef, onBeforeUnmount } from 'vue'
 import { myThreeClass } from '@u/three'
 
 const threeDom = useTemplateRef<HTMLDivElement>('threeDom')
@@ -13,11 +13,14 @@ onMounted(() => {
   console.log('mythree', myThree)
   // createPlane()
 })
+onBeforeUnmount(() => {
+  myThree && myThree.dispose()
+})
 </script>
 
 <template>
   <div id="threeDomId" ref="threeDom">
-    <span>ssje</span>
+    <span>ssje-shader</span>
   </div>
 </template>
 
@@ -30,7 +33,10 @@ onMounted(() => {
     position: absolute;
     top: 50%;
     left: 50%;
+    color: rgba(255, 255, 255, 0.5);
     transform: translate(-50%, -50%);
+    z-index: 100;
+    pointer-events: none;
   }
   @include flex();
 }

@@ -21,7 +21,23 @@ onMounted(() => {
 </script>
 
 <template>
-  <div id="viewDiv"></div>
+  <div id="viewDiv">
+    <span>ssje-arcgis</span>
+  </div>
 </template>
 
-<style scoped></style>
+<style lang="scss" scoped>
+#viewDiv {
+  height: 100vh;
+  position: relative;
+  span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    color: rgba(0, 0, 0, 0.5);
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    pointer-events: none;
+  }
+}
+</style>

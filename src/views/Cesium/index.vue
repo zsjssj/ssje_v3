@@ -40,18 +40,31 @@ onMounted(async () => {
 })
 onBeforeUnmount(() => {
   if (!viewer) return
-  const canvas = viewer.canvas.getContext('webgl2') || viewer.canvas.getContext('webgl')
-  canvas?.getExtension('WEBGL_lose_context')?.loseContext()
+  const canvasContent = viewer.canvas.getContext('webgl2') || viewer.canvas.getContext('webgl')
+  if (!canvasContent) return
+  canvasContent.getExtension('WEBGL_lose_context')?.loseContext()
   !viewer.isDestroyed() && viewer.destroy()
 })
 </script>
 
 <template>
-  <div id="cesiumContainer" ref="cesiumContainer"></div>
+  <div id="cesiumContainer" ref="cesiumContainer">
+    <span>ssje-cesium</span>
+  </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 #cesiumContainer {
   height: 100vh;
+  position: relative;
+  span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    color: rgba(255, 255, 255, 0.5);
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    pointer-events: none;
+  }
 }
 </style>

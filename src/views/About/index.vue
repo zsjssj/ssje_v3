@@ -3,8 +3,8 @@ import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 const router = useRouter()
 const route = useRoute()
-const showleft = ref(false)
 
+const showleft = ref(false)
 function changeshow() {
   showleft.value = !showleft.value
 }

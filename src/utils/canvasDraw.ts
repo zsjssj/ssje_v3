@@ -64,7 +64,6 @@ export class canvasDraw {
       ctx!.moveTo(event.offsetX, event.offsetY)
       this.canvas.addEventListener('mousemove', this.handleDraw.bind(this))
     })
-
     //监听鼠标松开事件
     window.addEventListener('mouseup', event => {
       const ctx = this.canvas.getContext('2d')
