@@ -1,17 +1,17 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
-import cesium from 'vite-plugin-cesium'
-import glsl from 'vite-plugin-glsl'
+// import cesium from 'vite-plugin-cesium'
+// import glsl from 'vite-plugin-glsl'
 
-// https://vite.dev/config/
+// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    vue(),
-    glsl(),
-    cesium({
-      rebuildCesium: true
-    })
+    vue()
+    // glsl(),
+    // cesium({
+    //   rebuildCesium: true
+    // })
   ],
   resolve: {
     alias: {
@@ -22,14 +22,39 @@ export default defineConfig({
       '@v': path.resolve(__dirname, './src/views')
     }
   },
-  build: {
-    assetsDir: 'assets' // 设置产出目录
-  },
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: `@use "@a/styles/mixin.scss" as *;`
+        additionalData: `@use "@/styles/variables/_colors.scss" as *;
+                        @use "@/styles/variables/_typography.scss" as *;
+                        @use "@/styles/variables/_spacing.scss" as *;
+                        @use "@/styles/variables/_borders.scss" as *;
+                        @use "@/styles/variables/_transitions.scss" as *;
+                        @use "@/styles/variables/_animations.scss" as *;`
       }
     }
+  },
+  build: {
+    target: 'esnext',
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true
+      }
+    },
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['vue', 'vue-router', 'pinia'],
+          ui: ['@fortawesome/fontawesome-free']
+        }
+      }
+    },
+    assetsDir: 'assets' // 设置产出目录
+  },
+  server: {
+    port: 5173,
+    open: true
   }
 })
