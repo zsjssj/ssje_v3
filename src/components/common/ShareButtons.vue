@@ -52,6 +52,8 @@ const share = (button: ShareButton) => {
 </script>
 
 <style lang="scss" scoped>
+@use 'sass:color';
+
 .share-buttons {
   display: flex;
   gap: 0.5rem;
@@ -76,28 +78,28 @@ const share = (button: ShareButton) => {
     &.twitter {
       background: #1da1f2;
       &:hover {
-        background: darken(#1da1f2, 10%);
+        background: color.scale(#1da1f2, $lightness: -10%);
       }
     }
 
     &.facebook {
       background: #4267b2;
       &:hover {
-        background: darken(#4267b2, 10%);
+        background: color.scale(#4267b2, $lightness: -10%);
       }
     }
 
     &.linkedin {
       background: #0077b5;
       &:hover {
-        background: darken(#0077b5, 10%);
+        background: color.scale(#0077b5, $lightness: -10%);
       }
     }
 
     &.whatsapp {
       background: #25d366;
       &:hover {
-        background: darken(#25d366, 10%);
+        background: color.scale(#25d366, $lightness: -10%);
       }
     }
   }

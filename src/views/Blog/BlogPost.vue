@@ -168,6 +168,8 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
+@use 'sass:color';
+
 .blog-post {
   .post-hero {
     padding: 4rem 0;
@@ -321,7 +323,7 @@ onMounted(() => {
             color: white;
 
             &:hover {
-              background: darken(#1da1f2, 10%);
+              background: color.scale(#1da1f2, $lightness: -10%);
             }
           }
 
@@ -330,7 +332,7 @@ onMounted(() => {
             color: white;
 
             &:hover {
-              background: darken(#0077b5, 10%);
+              background: color.scale(#0077b5, $lightness: -10%);
             }
           }
 
@@ -339,7 +341,7 @@ onMounted(() => {
             color: white;
 
             &:hover {
-              background: darken(#4267b2, 10%);
+              background: color.scale(#4267b2, $lightness: -10%);
             }
           }
         }

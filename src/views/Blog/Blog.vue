@@ -51,7 +51,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import PostCard from '../components/blog/PostCard.vue'
+import PostCard from '@/components/blog/PostCard.vue'
 import { getPlaceholderImage } from '@/utils/image'
 
 interface Post {

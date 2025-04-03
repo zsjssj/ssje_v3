@@ -2,7 +2,6 @@
   <div class="about">
     <div class="container">
       <Breadcrumb :items="breadcrumbItems" />
-
       <div class="about-content">
         <div class="profile-section">
           <div class="profile-header">

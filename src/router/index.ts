@@ -11,29 +11,29 @@ const router = createRouter({
         {
           path: '',
           name: 'home',
-          component: () => import('@/views/Home.vue')
+          component: () => import('@/views/Home/index.vue')
         },
         {
           path: 'blog',
           name: 'blog',
-          component: () => import('@/views/Blog.vue')
+          component: () => import('@/views/Blog/Blog.vue')
         },
         {
           path: 'blog/:id',
           name: 'blog-post',
-          component: () => import('@/views/BlogPost.vue')
+          component: () => import('@/views/Blog/BlogPost.vue')
         },
         {
           path: 'about',
           name: 'about',
-          component: () => import('@/views/About.vue')
+          component: () => import('@/views/About/index.vue')
         }
       ]
     },
     {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
-      component: () => import('@/views/NotFound.vue')
+      component: () => import('@/views/Error/error404.vue')
     }
   ],
   scrollBehavior(to, from, savedPosition) {
